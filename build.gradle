@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'ru.mentee.power'
+version = '1.0-SNAPSHOT'
+
+ext {
+    // TODO: подставь актуальные стабильные версии с Maven Central (mvnrepository.com)
+    junitVersion = '6.1.3'
+    assertjVersion = '3.27.7'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)   // как в DVT-1; фиксирует JDK для всех, независимо от системного JAVA_HOME
+    }
+}
+
+application {
+    mainClass = 'ru.mentee.power.ProgressDemo'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
