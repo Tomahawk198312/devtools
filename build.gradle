@@ -7,14 +7,13 @@ group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
 
 ext {
-    // TODO: подставь актуальные стабильные версии с Maven Central (mvnrepository.com)
     junitVersion = '6.1.3'
     assertjVersion = '3.27.7'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)   // как в DVT-1; фиксирует JDK для всех, независимо от системного JAVA_HOME
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
