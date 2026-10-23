@@ -4,11 +4,13 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
 
-# IntelliJ IDEA
-.idea/
+# IntelliJ IDEA (локальное состояние — игнор, codeStyles — командное)
+.idea/*
+!.idea/codeStyles/
+!.idea/codeStyles/**
 *.iml
 out/
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db

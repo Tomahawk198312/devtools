@@ -1,5 +1,6 @@
 # devtools
 
+
 Учебный Gradle-проект курса. Java 25 toolchain, JUnit 5 + AssertJ.
 
 ## Quick Start
@@ -60,3 +61,6 @@
 - Вывод неверный → проверь цикл через Debug
 - Тесты красные → открой Test Report, найди AssertionError
 - Breakpoint не срабатывает → убедись, что запущен Debug (жук), не Run
+## Удалённый репозиторий: протокол доступа
+
+HTTPS (https://github.com/Tomahawk198312/devtools.git)
