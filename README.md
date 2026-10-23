@@ -1,5 +1,6 @@
 # devtools
 
+
 Учебный Gradle-проект курса. Java 25 toolchain, JUnit 5 + AssertJ.
 
 ## Quick Start
@@ -38,6 +39,28 @@
 - Работа ведётся в ветке `feature/DVT-<номер>`, например `feature/DVT-3`.
 - Перед сдачей урока история должна показывать коммиты и в `master`, и в фича-ветке.
 
+## Сценарий ручной проверки DVT-6
+
+### Запуск
+./gradlew run
+Ожидаемый вывод: Суммарно: пройдено 25 из 36 уроков, осталось 11 уроков
+
+### Тесты
+./gradlew test
+Ожидаемый вывод: BUILD SUCCESSFUL, все тесты зелёные
+(2 теста calculateTotalProgress + 4 теста на исключения Mentee)
+
+### Debug
+- Breakpoint на `while (index < mentees.length)` в ProgressTracker
+- Debug 'ProgressTracker.main()', Step Over (F8) ×3
+- Variables: index / totalCompleted / totalTotal растут как в таблице урока
+- Evaluate Expression: `totalCompleted + mentees[index].completedLessons()` = 25
+  (после 2-й итерации)
+
+### При ошибках
+- Вывод неверный → проверь цикл через Debug
+- Тесты красные → открой Test Report, найди AssertionError
+- Breakpoint не срабатывает → убедись, что запущен Debug (жук), не Run
 ## Удалённый репозиторий: протокол доступа
 
 HTTPS (https://github.com/Tomahawk198312/devtools.git)
