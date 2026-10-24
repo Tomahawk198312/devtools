@@ -1,24 +1,29 @@
 package ru.mentee.power.devtools.student;
 
-import java.util.ArrayList;  // порядок импортов нарушен
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Коллекция студентов.
+ * DVT-7: намеренные нарушения стиля исправлены — MemberName, MethodName,
+ * WhitespaceAround, LineLength, AvoidStarImport, CustomImportOrder.
+ */
 public class StudentList {
-  private final List<Student> studentList;  // нарушение: snake_case
+  private final List<Student> studentList;
 
   public StudentList() {
     studentList = new ArrayList<>();
   }
 
-  // нарушение: имя метода
   public void addStudent(Student student) {
-    if (student != null) {  // нарушение: нет пробела после if
+    if (student != null) {
       studentList.add(student);
     }
   }
 
-  // нарушение: длинная строка (>100 символов)
   public List<Student> getStudentsByCity(String city) {
-    return studentList.stream().filter(s -> s.city().equals(city)).toList();
+    return studentList.stream()
+        .filter(s -> s.city().equals(city))
+        .toList();
   }
 }

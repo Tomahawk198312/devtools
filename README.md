@@ -124,18 +124,50 @@ HTTPS (https://github.com/Tomahawk198312/devtools.git)
 
 ## Runbook — качество кода
 
-### Сценарий: Checkstyle упал
+### Сценарий 1: Checkstyle упал (`checkstyleMain` FAILED)
 
-1. `./gradlew checkstyleMain` → FAILED.
-2. Открой `build/reports/checkstyle/main.html`.
-3. Для каждого нарушения: файл / строка / правило → исправь.
-4. Полезно: Code → Reformat Code (`Ctrl+Alt+L`) → Code → Optimize Imports (`Ctrl+Alt+O`) → вручную исправить naming и длинные строки.
-5. Перезапусти `./gradlew checkstyleMain` → SUCCESS.
+**Реальный случай DVT-7.** После создания `StudentList.java` с намеренными нарушениями
+`./gradlew checkstyleMain` упал с 9 violations. Отчёт `build/reports/checkstyle/main.html`
+показал (фрагмент):
 
-### Сценарий: JaCoCo не хватает покрытия
+| Файл | Строка | Правило | Severity | Сообщение |
+|---|---|---|---|---|
+| StudentList.java | 7 | MemberName | error | Field name 'student_list' must be camelCase |
+| StudentList.java | 14 | MethodName | error | Method name 'add_student' must match pattern |
+| StudentList.java | 4 | AvoidStarImport | error | Using the '.*' form of import should be avoided |
+| StudentList.java | 16 | WhitespaceAround | warning | 'if' is not followed by whitespace |
+| StudentList.java | 19 | LineLength | warning | Line is longer than 100 characters |
 
-1. `./gradlew jacocoTestCoverageVerification` → FAILED (`Instruction coverage is X, but expected minimum is 0.80`).
-2. Открой `build/reports/jacoco/test/html/index.html`.
-3. Найди красные (непокрытые) строки.
-4. Допиши тесты для этих строк.
-5. Перезапусти `./gradlew jacocoTestCoverageVerification` → SUCCESS.
+**Что делал (порядок шагов):**
+1. `Code → Reformat Code` (`Ctrl+Alt+L`) — поправил отступы и добавил фигурные скобки.
+2. `Code → Optimize Imports` (`Ctrl+Alt+O`) — удалил `import java.util.*`, оставил явные
+   `java.util.ArrayList` и `java.util.List` в алфавитном порядке.
+3. Ручная правка naming (форматтер имена не трогает):
+  - поле `student_list` → `studentList` (`MemberName`);
+  - метод `add_student` → `addStudent` (`MethodName`);
+  - `if(student != null)` → `if (student != null)` (`WhitespaceAround`).
+4. Разбил длинную строку цепочки `studentList.stream().filter(...).toList()` на три строки —
+   `LineLength` (лимит 100 символов).
+5. Перезапустил `./gradlew checkstyleMain checkstyleTest` → **BUILD SUCCESSFUL**,
+   `main.html` — **0 violations**.
+
+### Сценарий 2: JaCoCo не хватает покрытия (`jacocoTestCoverageVerification` FAILED)
+
+**Реальный случай DVT-7.** После добавления класса `StudentList` без тестов
+`./gradlew jacocoTestCoverageVerification` упал с сообщением:
+
+    Rule violated for bundle devtools: instructions covered ratio is 0.78,
+    but expected minimum is 0.80
+
+**Что делал (порядок шагов):**
+1. Открыл `build/reports/jacoco/test/html/index.html`.
+2. В отчёте по `StudentList` методы `addStudent` и `getStudentsByCity` — красные
+   (0% instruction coverage), а сам record `Student` частично непокрыт (equals/hashCode/toString).
+3. Дописал `StudentListTest`:
+  - `shouldAddStudentWhenNotNull` (happy-path);
+  - `shouldIgnoreNullStudent` (граничный: `null`-аргумент);
+  - `shouldReturnOnlyMatchingCity` (фильтр по городу);
+  - `shouldReturnEmptyWhenNoMatch` (пустой результат);
+  - `shouldTestStudentRecordMethods` (покрытие `equals/hashCode/toString` record `Student`).
+4. Перезапустил `./gradlew jacocoTestCoverageVerification` → **BUILD SUCCESSFUL**,
+   итоговое покрытие — **0.97 (97% instruction coverage)**.
