@@ -263,3 +263,54 @@ README badge). Найдено 3 замечания:
 - **Почему важно:** новый разработчик не знает, как прогнать проверки до PR,
   и ловит красный CI на первом же push.
 - **Как исправить:** добавить обе команды в Quick Start.
+
+## Информационный поиск — результаты DVT-11
+
+### Запросы и источники
+
+| № | Запрос | Операторы | Официальный источник | Альтернатива | Статус | Дата |
+|---|---|---|---|---|---|---|
+| 1 | Актуальная версия Lombok в Maven Central | `site:search.maven.org "lombok" OR site:mvnrepository.com "lombok"` | https://central.sonatype.com/artifact/org.projectlombok/lombok — версия **1.18.48** (2026-09-02) | https://mvnrepository.com/artifact/org.projectlombok/lombok | 200 OK | 2026-10-25 |
+| 2 | Java 25 Stream API | `site:docs.oracle.com "stream api" intitle:api` | https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html | https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html (если 25 недоступна) | 200 OK | 2026-10-25 |
+| 3 | Горячие клавиши IntelliJ IDEA | `site:www.jetbrains.com/help "keymap"` | https://www.jetbrains.com/help/idea/2025.3/settings-keymap.html | Help → Keymap Reference (PDF внутри IDE) | 200 OK | 2026-10-25 |
+
+### AI-промпты и сравнение
+
+#### Промпт 1: План решения
+
+**Задача:** исправить потенциальный `ArrayIndexOutOfBoundsException` в цикле `while` в `ProgressTracker.calculateTotalProgress`.
+
+**Контекст:** Java 25, Gradle-проект `devtools`, уже есть `record Mentee` и класс `ProgressTracker` с циклом `while (index < mentees.length)`.
+
+**Ограничения:** нельзя использовать `for-each`, потому что по заданию нужен именно `while`; нельзя менять сигнатуру метода.
+
+**Что нужно:** план из 3–5 шагов с объяснением «почему». **НЕ пиши код** — реализую сам.
+
+**Критерии успеха:** `./gradlew test` зелёный, тест `shouldThrowWhenNullArray` проходит.
+
+**AI-1 (DeepSeek):**
+> 1. Добавить проверку `mentees == null` в начале метода — иначе `mentees.length` бросит `NullPointerException`.
+> 2. Проверить пустой массив: `mentees.length == 0` — вернуть строку «Суммарно: пройдено 0 из 0 уроков, осталось 0 уроков».
+> 3. Оставить цикл `while (index < mentees.length)` — это корректная граница, off-by-one нет.
+> 4. Добавить тест на `null` и на пустой массив.  
+     > Почему: `null` и пустой массив — два разных граничных случая; `while` с `<` не даёт выйти за границу, поэтому сам цикл менять не нужно.
+
+**AI-2 (YandexGPT):**
+> 1. Проверить, что `mentees` не `null`.
+> 2. Проверить, что массив не пустой.
+> 3. В цикле `while` использовать условие `index < mentees.length`, не `<=`.
+> 4. Убедиться, что `index++` стоит в теле цикла.
+> 5. Добавить тесты на граничные случаи.  
+     > Ответ получился более общим, без явного указания, что возвращать при пустом массиве.
+
+**Сравнение:** оба ассистента сошлись на проверке `null` и на том, что условие `index < mentees.length` корректно. DeepSeek дал более конкретный план: что именно возвращать при пустом массиве и почему `while` менять не нужно. YandexGPT перечислил шаги более обще, без деталей возврата. Выбрал **DeepSeek**, потому что его план можно сразу реализовать без уточнений.
+
+#### Промпт 2: Проверка кода
+
+**Код для проверки:**
+```java
+public List<Student> getStudentsByCity(String city) {
+  return studentList.stream()
+      .filter(s -> s.city().equals(city))
+      .toList();
+}
