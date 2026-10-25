@@ -9,6 +9,8 @@
 - `./gradlew run` — запустить ProgressDemo
 - `./gradlew test` — прогнать тесты
 - `./gradlew build` — полная сборка
+- `./gradlew checkstyleMain` — проверить стиль
+- `./gradlew jacocoTestCoverageVerification` — проверить покрытие ≥ 80%
 
 ## Packages
 
