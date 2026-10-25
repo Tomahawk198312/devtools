@@ -1,3 +1,5 @@
+![CI](https://github.com/Tomahawk198312/devtools/actions/workflows/ci.yml/badge.svg)
+git add README.md
 # devtools
 
 
