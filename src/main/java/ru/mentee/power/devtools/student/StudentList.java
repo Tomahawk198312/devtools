@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class StudentList {
   private final List<Student> studentList;
+  private int violation_demo;   // ← временное нарушение для CI-демо (snake_case)
 
   public StudentList() {
     studentList = new ArrayList<>();
