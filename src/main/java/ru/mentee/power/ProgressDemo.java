@@ -9,7 +9,7 @@ public class ProgressDemo {
     );
 
     System.out.println(progress.summary());
-    System.out.println("Current branch: feature/DVT-3");
+
     if (progress.readyForSprint()) {
       System.out.println("Status: sprint ready");
     } else {

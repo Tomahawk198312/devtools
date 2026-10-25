@@ -15,12 +15,23 @@ public class StudentList {
     studentList = new ArrayList<>();
   }
 
+  /**
+   * Добавляет студента в список. {@code null} игнорируется.
+   *
+   * @param student студент; {@code null} допускается
+   */
   public void addStudent(Student student) {
     if (student != null) {
       studentList.add(student);
     }
   }
 
+  /**
+   * Возвращает студентов указанного города. Сравнение точное, регистрозависимое.
+   *
+   * @param city название города
+   * @return список студентов этого города; пустой, если совпадений нет
+   */
   public List<Student> getStudentsByCity(String city) {
     return studentList.stream()
         .filter(s -> s.city().equals(city))
