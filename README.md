@@ -64,3 +64,110 @@
 ## Удалённый репозиторий: протокол доступа
 
 HTTPS (https://github.com/Tomahawk198312/devtools.git)
+
+## Кодстайл-гайд проекта devtools
+
+Проект следует правилам Google Java Style Guide с адаптацией.
+Автоматическая проверка: `./gradlew checkstyleMain`
+
+### 1. Именование полей и методов: camelCase
+
+До:    `private List<Student> student_list;`
+`public void add_student(Student s) { }`
+
+После: `private List<Student> students;`
+`public void addStudent(Student s) { }`
+
+Почему: Java Convention требует camelCase, snake_case запрещён.
+Источник: https://google.github.io/styleguide/javaguide.html#s5.3-camel-case
+
+### 2. Пробелы после ключевых слов: if / for / while
+
+До:    `if(student != null)`
+
+После: `if (student != null)`
+
+Почему: пробел отделяет ключевое слово от выражения, улучшает читаемость.
+Источник: Oracle Code Conventions — Whitespace
+
+### 3. Обязательные фигурные скобки
+
+До:    `if (student != null)`
+`students.add(student);`
+
+После: `if (student != null) {`
+`students.add(student);`
+`}`
+
+Почему: скобки обязательны даже для однострочных блоков — снижают риск ошибки при правках.
+Источник: https://google.github.io/styleguide/javaguide.html#s4.1.1-braces-always-used
+
+### 4. Длина строки: максимум 100 символов
+
+До:    `public List<Student> get_students_from_specific_city_with_very_long_method_name_exceeding_line_limit(String city) {`
+
+После: `public List<Student> getStudentsByCity(String city) {`
+
+Почему: длинные строки не влезают в экран, усложняют review.
+Источник: https://google.github.io/styleguide/javaguide.html#s4.4-column-limit
+
+### 5. Импорты: без wildcard, без неиспользуемых
+
+До:    `import java.util.*;`
+`import java.io.File;`
+
+После: `import java.util.ArrayList;`
+`import java.util.List;`
+
+Почему: wildcard скрывает реальные зависимости, неиспользуемые импорты засоряют файл.
+Источник: https://google.github.io/styleguide/javaguide.html#s3.3-import-statements
+
+## Runbook — качество кода
+
+### Сценарий 1: Checkstyle упал (`checkstyleMain` FAILED)
+
+**Реальный случай DVT-7.** После создания `StudentList.java` с намеренными нарушениями
+`./gradlew checkstyleMain` упал с 9 violations. Отчёт `build/reports/checkstyle/main.html`
+показал (фрагмент):
+
+| Файл | Строка | Правило | Severity | Сообщение |
+|---|---|---|---|---|
+| StudentList.java | 7 | MemberName | error | Field name 'student_list' must be camelCase |
+| StudentList.java | 14 | MethodName | error | Method name 'add_student' must match pattern |
+| StudentList.java | 4 | AvoidStarImport | error | Using the '.*' form of import should be avoided |
+| StudentList.java | 16 | WhitespaceAround | warning | 'if' is not followed by whitespace |
+| StudentList.java | 19 | LineLength | warning | Line is longer than 100 characters |
+
+**Что делал (порядок шагов):**
+1. `Code → Reformat Code` (`Ctrl+Alt+L`) — поправил отступы и добавил фигурные скобки.
+2. `Code → Optimize Imports` (`Ctrl+Alt+O`) — удалил `import java.util.*`, оставил явные
+   `java.util.ArrayList` и `java.util.List` в алфавитном порядке.
+3. Ручная правка naming (форматтер имена не трогает):
+  - поле `student_list` → `studentList` (`MemberName`);
+  - метод `add_student` → `addStudent` (`MethodName`);
+  - `if(student != null)` → `if (student != null)` (`WhitespaceAround`).
+4. Разбил длинную строку цепочки `studentList.stream().filter(...).toList()` на три строки —
+   `LineLength` (лимит 100 символов).
+5. Перезапустил `./gradlew checkstyleMain checkstyleTest` → **BUILD SUCCESSFUL**,
+   `main.html` — **0 violations**.
+
+### Сценарий 2: JaCoCo не хватает покрытия (`jacocoTestCoverageVerification` FAILED)
+
+**Реальный случай DVT-7.** После добавления класса `StudentList` без тестов
+`./gradlew jacocoTestCoverageVerification` упал с сообщением:
+
+    Rule violated for bundle devtools: instructions covered ratio is 0.78,
+    but expected minimum is 0.80
+
+**Что делал (порядок шагов):**
+1. Открыл `build/reports/jacoco/test/html/index.html`.
+2. В отчёте по `StudentList` методы `addStudent` и `getStudentsByCity` — красные
+   (0% instruction coverage), а сам record `Student` частично непокрыт (equals/hashCode/toString).
+3. Дописал `StudentListTest`:
+  - `shouldAddStudentWhenNotNull` (happy-path);
+  - `shouldIgnoreNullStudent` (граничный: `null`-аргумент);
+  - `shouldReturnOnlyMatchingCity` (фильтр по городу);
+  - `shouldReturnEmptyWhenNoMatch` (пустой результат);
+  - `shouldTestStudentRecordMethods` (покрытие `equals/hashCode/toString` record `Student`).
+4. Перезапустил `./gradlew jacocoTestCoverageVerification` → **BUILD SUCCESSFUL**,
+   итоговое покрытие — **0.97 (97% instruction coverage)**.
