@@ -232,3 +232,32 @@ HTTPS (https://github.com/Tomahawk198312/devtools.git)
 Почему плохо: переходит на личность, демотивирует, не объясняет «почему».
 Правильно: «`ProgressDemo.java:15` — отладочный вывод, предлагаю удалить,
 чтобы не шумел в логах.»
+
+## Результаты само-ревью DVT-9
+
+Само-ревью по чеклисту проведено для изменений PR DVT-8 (CI workflow,
+README badge). Найдено 3 замечания:
+
+### Замечание 1 — отладочный вывод в проде
+
+- **Файл/строка:** `src/main/java/ru/mentee/power/ProgressDemo.java:15`
+- **Суть:** оставлен `System.out.println("Current branch: feature/DVT-3");`
+- **Почему важно:** отладочный вывод в проде, захардкоженное имя ветки
+  станет неверным после мержа.
+- **Как исправить:** удалить строку.
+
+### Замечание 2 — отсутствует JavaDoc на публичных методах
+
+- **Файл/строка:** `src/main/java/ru/mentee/power/devtools/student/StudentList.java:14,20`
+- **Суть:** `addStudent(Student)` и `getStudentsByCity(String)` — без JavaDoc.
+- **Почему важно:** не видно контракта — что с `null`, что вернёт фильтр.
+- **Как исправить:** добавить JavaDoc с `@param` / `@return`.
+
+### Замечание 3 — Quick Start без команд проверки качества
+
+- **Файл/строка:** `README.md` → раздел Quick Start
+- **Суть:** нет команд `./gradlew checkstyleMain` и
+  `./gradlew jacocoTestCoverageVerification`.
+- **Почему важно:** новый разработчик не знает, как прогнать проверки до PR,
+  и ловит красный CI на первом же push.
+- **Как исправить:** добавить обе команды в Quick Start.
