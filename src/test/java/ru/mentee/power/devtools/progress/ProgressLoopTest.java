@@ -3,6 +3,7 @@ package ru.mentee.power.devtools.progress;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.offset;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ class ProgressLoopTest {
 
     String result = tracker.calculateTotalProgress(mentees);
 
+    assertThat(mentees).extracting(Mentee::name).containsExactly("Иван", "Мария", "Пётр");
     assertThat(result)
         .contains("пройдено 25 из 36 уроков")
         .contains("осталось 11 уроков");
@@ -43,7 +45,65 @@ class ProgressLoopTest {
         .contains("осталось 0 уроков");
   }
 
-  // ===== ТВОЯ ЧАСТЬ: тесты на исключения Mentee =====
+  // ===== Тесты на averageProgressPercent (DVT-13) =====
+
+  @Test
+  @DisplayName("Средний процент — ровный случай, все ровно на 50%")
+  void shouldReturnExactPercentWhenAllMenteesHalfDone() {
+    ProgressTracker tracker = new ProgressTracker();
+    Mentee[] mentees = {
+        new Mentee("Иван", "Москва", "Backend", 6, 12),
+        new Mentee("Мария", "СПб", "Fullstack", 6, 12)
+    };
+
+    double result = tracker.averageProgressPercent(mentees);
+
+    assertThat(result).isEqualTo(50.0);
+  }
+
+  @Test
+  @DisplayName("Средний процент — некруглый случай, точный ассерт через isCloseTo")
+  void shouldReturnApproximatePercentWhenNotDivisibleEvenly() {
+    ProgressTracker tracker = new ProgressTracker();
+    Mentee[] mentees = {
+        new Mentee("Иван", "Москва", "Backend", 5, 12),
+        new Mentee("Мария", "СПб", "Fullstack", 8, 12),
+        new Mentee("Пётр", "Казань", "Java", 12, 12)
+    };
+
+    double result = tracker.averageProgressPercent(mentees);
+
+    assertThat(result).isCloseTo(69.44, offset(0.01));
+  }
+
+  @Test
+  @DisplayName("Средний процент — исключение на пустом массиве")
+  void shouldThrowWhenMenteesArrayIsEmpty() {
+    ProgressTracker tracker = new ProgressTracker();
+    Mentee[] mentees = {};
+
+    assertThatThrownBy(() -> tracker.averageProgressPercent(mentees))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Пустой список mentee");
+  }
+
+  @Test
+  @DisplayName("Средний процент — границы результата (цепочка ассертов)")
+  void shouldReturnPercentWithinBoundsWhenAtLeastOneNotCompleted() {
+    ProgressTracker tracker = new ProgressTracker();
+    Mentee[] mentees = {
+        new Mentee("Иван", "Москва", "Backend", 5, 12),
+        new Mentee("Пётр", "Казань", "Java", 12, 12)
+    };
+
+    double result = tracker.averageProgressPercent(mentees);
+
+    assertThat(result)
+        .isGreaterThan(0)
+        .isLessThanOrEqualTo(100.0);
+  }
+
+  // ===== Тесты на исключения Mentee (DVT-6) =====
 
   @Test
   @DisplayName("Исключение, когда completedLessons больше totalLessons")
@@ -83,9 +143,9 @@ class ProgressLoopTest {
     Mentee m2 = new Mentee("Иван", "Москва", "Backend", 5, 12);
     Mentee m3 = new Mentee("Мария", "СПб", "Fullstack", 8, 12);
 
-    org.assertj.core.api.Assertions.assertThat(m1).isEqualTo(m2);
-    org.assertj.core.api.Assertions.assertThat(m1).isNotEqualTo(m3);
-    org.assertj.core.api.Assertions.assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
-    org.assertj.core.api.Assertions.assertThat(m1.toString()).contains("Иван");
+    assertThat(m1).isEqualTo(m2);
+    assertThat(m1).isNotEqualTo(m3);
+    assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
+    assertThat(m1.toString()).contains("Иван");
   }
 }
