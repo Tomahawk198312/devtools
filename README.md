@@ -502,3 +502,26 @@ public List<Student> getStudentsByCity(String city) {
 **Ограничения:** знаю, что «так принято», но не до конца понимаю механику проверок до merge.
 **Ожидаемый результат:** понимание ролей CI, code review и обсуждения внутри PR.
 **Критерии успеха:** могу объяснить, что произойдёт, если запушить прямо в master без PR — какие проверки пропустятся и почему это риск.
+
+## Как называются тесты в этом проекте
+
+Схема: `shouldРезультат_whenУсловие`.
+
+Примеры из проекта:
+- `shouldCalculateTotalProgressWhenMultipleMentees`
+- `shouldThrowWhenCompletedExceedsTotal`
+- `shouldReturnApproximatePercentWhenNotDivisibleEvenly`
+- `shouldReturnExactPercentWhenAllMenteesHalfDone`
+
+Правила:
+- Имя теста читается как утверждение: что должно произойти и при каком условии.
+- Плохие имена: `test1`, `testMentee`, `shouldWork` — не говорят, что именно проверяется.
+- Если к имени хочется добавить «And» — тест делает слишком много, разбей на два.
+- Тест с несколькими проверками одного объекта — один логический тест; разные объекты — разные тесты.
+
+Ассерты:
+- Дробные числа (`double`/`float`) — `isCloseTo(..., offset(...))`, не `isEqualTo`.
+- Коллекции — `extracting(...).containsExactly(...)` проверяет состав и порядок.
+- Исключения — `assertThatThrownBy(...).isInstanceOf(...).hasMessageContaining(...)` —
+  проверяем и тип, и причину.
+- Цепочка ассертов на одном объекте — `assertThat(x).isGreaterThan(0).isLessThanOrEqualTo(100)`.
