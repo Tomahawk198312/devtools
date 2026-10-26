@@ -351,3 +351,154 @@ public List<Student> getStudentsByCity(String city) {
 **Сравнение:**
 
 Оба ассистента сошлись на главной проблеме — `NullPointerException` при `s.city() == null` — и оба предложили `Objects.equals` как безопасное сравнение. Различие в глубине: DeepSeek разобрал три запрошенных пункта по отдельности (логика, стиль, производительность) и явно указал, что пустой список обрабатывается корректно; YandexGPT дал более короткий ответ и не проверил отдельно производительность и JavaDoc, но верно заметил проблему `null`-параметра `city`. Выбрал **DeepSeek**, потому что его ответ структурно совпадает с тремя пунктами промпта и содержит конкретное предложение по исправлению без переписывания кода — то, что я просил.
+
+## Технологический стек проекта
+
+### Языки и платформы
+- Java 25 LTS — основной язык
+- Gradle (через Gradle Wrapper) — система сборки
+
+### Инструменты качества кода
+- Checkstyle — статический анализ стиля (`config/checkstyle/checkstyle.xml`, `./gradlew checkstyleMain`)
+- JUnit 5 + AssertJ — тесты (`./gradlew test`)
+- JaCoCo — покрытие тестами (порог 80%, `./gradlew jacocoTestCoverageVerification`)
+
+### CI/CD
+- GitHub Actions — Checkstyle, тесты, JaCoCo и сборка на каждый push и PR (`.github/workflows/ci.yml`)
+
+### Правила кода
+- Стиль: Google Java Style (через Checkstyle)
+- Ветки: `feature/DVT-X`, `master` — основная; PR обязателен для слияния
+- Само-ревью по чеклисту перед сдачей
+
+## Личный глоссарий терминов Dev Tools
+
+### Категория: Java-экосистема
+
+#### JDK — Java Development Kit
+**Определение:** Development environment for building Java applications; includes javac compiler, jar and javadoc tools.
+**Контекст использования:** нужен для компиляции кода в байт-код и сборки проекта; без JDK проект не собрать.
+**Пример:** `java -version` проверяет версию; в IntelliJ IDEA Project SDK указывает на установленный JDK.
+**Источник:** https://docs.oracle.com/en/java/javase/
+
+#### JRE — Java Runtime Environment
+**Определение:** Runtime environment that provides the libraries and JVM needed to run Java applications, but not development tools like the compiler.
+**Контекст использования:** нужен для запуска готовых приложений на машине пользователя; для разработки недостаточен.
+**Пример:** пользователь получает JRE вместе с Java-приложением и может его запустить, но не скомпилировать новый код.
+**Источник:** https://docs.oracle.com/javase/8/docs/technotes/guides/
+
+#### JVM — Java Virtual Machine
+**Определение:** Virtual machine that executes Java bytecode, providing platform independence ("write once, run anywhere").
+**Контекст использования:** обеспечивает кроссплатформенность: один и тот же байт-код запускается на Windows, macOS, Linux.
+**Пример:** `java HelloWorld` запускает JVM, которая интерпретирует `.class`-файл.
+**Источник:** https://docs.oracle.com/javase/specs/jvms/se21/html/index.html
+
+#### Build Tool — Система сборки
+**Определение:** Software that automates compiling, testing, packaging and dependency resolution of a project.
+**Контекст использования:** избавляет от ручного скачивания JAR и настройки classpath; Gradle и Maven — типичные примеры.
+**Пример:** `./gradlew build` компилирует код, гоняет тесты и собирает артефакт одной командой.
+**Источник:** https://docs.gradle.org/current/userguide/what_is_gradle.html
+
+#### Dependency — Зависимость
+**Определение:** External library or module that a project requires to compile, run, or test; in Gradle declared via `implementation` / `testImplementation`.
+**Контекст использования:** Gradle подключает внешние библиотеки (Lombok, JUnit); без объявления зависимости код не скомпилируется.
+**Пример:** `testImplementation 'org.assertj:assertj-core:3.27.7'` подключает AssertJ как зависимость.
+**Источник:** https://docs.gradle.org/current/userguide/dependency_management.html
+
+### Категория: Инструменты разработки
+
+#### IDE — Integrated Development Environment
+**Определение:** Application that combines code editor, compiler, debugger, build tools and version control in one interface.
+**Контекст использования:** ускоряет разработку за счёт подсветки ошибок, автодополнения, рефакторинга и отладки.
+**Пример:** IntelliJ IDEA — IDE, в которой мы пишем, запускаем и отлаживаем Java-код.
+**Источник:** https://www.jetbrains.com/help/idea/discover-intellij-idea.html
+
+#### SDK — Software Development Kit
+**Определение:** Set of tools, libraries and documentation for developing software for a specific platform.
+**Контекст использования:** более широкое понятие, чем JDK; может включать эмуляторы, CLI-утилиты, примеры.
+**Пример:** Android SDK — для разработки Android-приложений; JDK — это частный случай SDK для Java.
+**Источник:** https://developer.android.com/studio/intro/update
+
+#### Git — Git
+**Определение:** Distributed version control system that tracks changes in source code and supports branching and merging.
+**Контекст использования:** хранит историю изменений локально; без Git не работают PR, code review и CI.
+**Пример:** `git commit -m "..."` фиксирует изменения в локальной истории.
+**Источник:** https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F
+
+#### Repository — Репозиторий
+**Определение:** Storage location for version-controlled code (Git) or for packaged artifacts (Maven/Gradle).
+**Контекст использования:** в Git — хранилище истории; в Maven Central — хранилище библиотек; контекст различает смысл.
+**Пример:** `https://github.com/Tomahawk198312/devtools` — Git-репозиторий проекта; `mavenCentral()` в `build.gradle` — artifact-репозиторий.
+**Источник:** https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository
+
+#### Commit — Коммит
+**Определение:** Snapshot of the project at a point in time, recorded in the repository history with a unique hash, author and message.
+**Контекст использования:** атомарная единица изменений; сообщение коммита объясняет «что и почему».
+**Пример:** `git commit -m "DVT-12: глоссарий и технологический стек"` фиксирует изменения в истории.
+**Источник:** https://git-scm.com/docs/git-commit
+
+#### Branch — Ветка
+**Определение:** Movable pointer to a commit that lets you isolate work without affecting other lines of development.
+**Контекст использования:** в команде каждая задача — отдельная `feature/DVT-X`; `master` остаётся чистым.
+**Пример:** `git checkout -b feature/DVT-12` создаёт и переключает на новую ветку.
+**Источник:** https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell
+
+#### Pull Request — Pull Request
+**Определение:** Request to merge changes from one branch into another, with built-in code review, checks and discussion.
+**Контекст использования:** обязательный шаг перед слиянием в `master`; CI и ревью проходят в самом PR.
+**Пример:** на GitHub открываем PR `feature/DVT-12 → master`; зелёный CI и merge подтверждают готовность.
+**Источник:** https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
+
+#### Gradle Wrapper — Gradle Wrapper
+**Определение:** Script (`gradlew`/`gradlew.bat`) plus configuration that pins a specific Gradle version and downloads it on demand.
+**Контекст использования:** обеспечивает одинаковую версию Gradle у всех разработчиков и на CI.
+**Пример:** `./gradlew build` скачивает нужную версию Gradle и запускает сборку.
+**Источник:** https://docs.gradle.org/current/userguide/gradle_wrapper.html
+
+#### Checkstyle — Checkstyle
+**Определение:** Static analysis tool that checks Java source code against a configurable set of coding-style rules.
+**Контекст использования:** ловит нарушения стиля до code review; ошибки (naming) блокируют сборку.
+**Пример:** `./gradlew checkstyleMain` запускает проверку main-кода; отчёт — `build/reports/checkstyle/main.html`.
+**Источник:** https://checkstyle.org/
+
+#### Debug — Отладка
+**Определение:** Process of finding and fixing defects by inspecting program execution step by step and examining variable values.
+**Контекст использования:** позволяет понять, почему код работает не так, без временных `println`.
+**Пример:** запуск `Debug 'ProgressTracker.main()'` в IntelliJ IDEA с breakpoint на цикле.
+**Источник:** https://www.jetbrains.com/help/idea/debugging-code.html
+
+#### Breakpoint — Точка останова
+**Определение:** Marker on a source line that pauses program execution when reached in debug mode, allowing inspection of state.
+**Контекст использования:** останавливает программу в нужном месте, чтобы посмотреть значения переменных.
+**Пример:** ставим breakpoint на `while (index < mentees.length)` и проходим итерации через Step Over (F8).
+**Источник:** https://www.jetbrains.com/help/idea/using-breakpoints.html
+
+### Категория: Процессы и практики
+
+#### Code Review — Код-ревью
+**Определение:** Systematic examination of source code by someone other than the author to find defects and improve quality.
+**Контекст использования:** обязательный шаг перед merge; ловит логические ошибки, проблемы архитектуры, читаемости.
+**Пример:** в PR оставляем комментарий по шаблону «Проблема → Почему важно → Предложение».
+**Источник:** https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews
+
+#### CI/CD
+**Определение:** Continuous Integration (frequent automated build/test on every change) and Continuous Delivery/Deployment (automated release pipeline).
+**Контекст использования:** CI запускается на каждый push/PR и ловит поломки до code review.
+**Пример:** GitHub Actions workflow `.github/workflows/ci.yml` на каждый push прогоняет Checkstyle, тесты, JaCoCo и build.
+**Источник:** https://docs.github.com/en/actions/automating-builds-and-tests/about-continuous-integration
+
+## Вопросы по сложным терминам
+
+### Вопрос 1: JDK / JRE / JVM — в чём разница и когда что использовать
+**Задача:** понять, зачем нужны три разных понятия и какое из них выбирать в каждой ситуации.
+**Контекст:** в DVT-1 ставили JDK, в CI указываем `distribution: temurin`, на проде пользователь получает приложение с JRE внутри.
+**Ограничения:** уже читал общие статьи, но путался, что включает JDK, а что — JRE.
+**Ожидаемый результат:** чёткое понимание иерархии (JDK ⊃ JRE ⊃ JVM) и умение выбирать нужный компонент под задачу.
+**Критерии успеха:** могу без подсказок объяснить коллеге, почему для компиляции нужен JDK, а для запуска хватит JRE.
+
+### Вопрос 2: Pull Request vs прямой push в master — зачем нужен PR
+**Задача:** понять, какую проблему решает PR и почему прямой push в master — антипаттерн.
+**Контекст:** в DVT-4…DVT-8 работаем только через PR; в командных проектах прямой push запрещён политикой.
+**Ограничения:** знаю, что «так принято», но не до конца понимаю механику проверок до merge.
+**Ожидаемый результат:** понимание ролей CI, code review и обсуждения внутри PR.
+**Критерии успеха:** могу объяснить, что произойдёт, если запушить прямо в master без PR — какие проверки пропустятся и почему это риск.
