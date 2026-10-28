@@ -525,3 +525,24 @@ public List<Student> getStudentsByCity(String city) {
 - Исключения — `assertThatThrownBy(...).isInstanceOf(...).hasMessageContaining(...)` —
   проверяем и тип, и причину.
 - Цепочка ассертов на одном объекте — `assertThat(x).isGreaterThan(0).isLessThanOrEqualTo(100)`.
+
+## GATE-1: Результаты проверки
+
+**Дата прохождения:** 2026-10-28
+**Формат:** Контрольные вопросы + live coding
+
+### Основные темы
+- JDK/JRE/JVM и настройка IntelliJ IDEA
+- Gradle Wrapper и задачи сборки
+- Git локальный workflow и GitHub SSH
+- GitHub Actions CI и Checkstyle
+- Code Review и Evidence Pack
+- Live coding: FizzBuzz, сумма чётных, поиск максимального
+
+### Результат
+- ✅ Теоретические вопросы: ответы подготовлены
+- ✅ Live coding: код написан и проверен в Debug
+- 📌 Рекомендации к CCRM: повторить работу с массивами
+
+### Ссылки
+- Конспект ответов приложен к сдаче
